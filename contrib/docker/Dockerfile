@@ -1,38 +1,31 @@
-FROM python:3.6
+FROM tonny2v/superset-python-nodejs
 
-RUN useradd --user-group --create-home --no-log-init --shell /bin/bash superset
+#COPY ./requirements.txt ./
+#RUN pip3 install -r requirements.txt
+
+# Create a group and user
+RUN addgroup -S superset && adduser -S superset -G superset
 
 # Configure environment
 ENV LANG=C.UTF-8 \
     LC_ALL=C.UTF-8
 
-RUN apt-get update -y
-
-# Install dependencies to fix `curl https support error` and `elaying package configuration warning`
-RUN apt-get install -y apt-transport-https apt-utils
-
-# Install superset dependencies
-# https://superset.incubator.apache.org/installation.html#os-dependencies
-RUN apt-get install -y build-essential libssl-dev \
-    libffi-dev python3-dev libsasl2-dev libldap2-dev libxi-dev
-
 # Install extra useful tool for development
-RUN apt-get install -y vim less postgresql-client redis-tools
-
-# Install nodejs for custom build
-# https://superset.incubator.apache.org/installation.html#making-your-own-build
-# https://nodejs.org/en/download/package-manager/
-RUN curl -sL https://deb.nodesource.com/setup_10.x | bash - \
-    && apt-get install -y nodejs
+RUN apk del openssl openssl-dev # conficts with mariadb-dev (libressl-dev)
+RUN apk add --no-cache postgresql-client postgresql-dev redis mariadb-client mariadb-dev
 
 WORKDIR /home/superset
 
-COPY requirements.txt .
-COPY requirements-dev.txt .
+COPY ./requirements.txt ./
+COPY ./requirements-dev.txt ./
 
-RUN pip install --upgrade setuptools pip \
-    && pip install -r requirements.txt -r requirements-dev.txt \
+RUN pip3 install --upgrade setuptools pip \
+    && pip3 install -r requirements.txt -r requirements-dev.txt \
     && rm -rf /root/.cache/pip
+
+# Celery 4.2 does not support python 3.7, use master instead
+RUN apk add git bash
+RUN pip3 install --upgrade git+https://github.com/celery/celery.git
 
 USER superset
 
@@ -49,8 +42,10 @@ RUN cd superset/assets \
 
 COPY contrib/docker/docker-init.sh .
 COPY contrib/docker/docker-entrypoint.sh /entrypoint.sh
+
+
 ENTRYPOINT ["/entrypoint.sh"]
 
-HEALTHCHECK CMD ["curl", "-f", "http://localhost:8088/health"]
+#HEALTHCHECK CMD ["curl", "-f", "http://localhost:8088/health"]
 
 EXPOSE 8088

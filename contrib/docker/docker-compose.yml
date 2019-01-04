@@ -1,14 +1,14 @@
 version: '3'
 services:
   redis:
-    image: redis:3.2
+    image: tonny2v/redis
     restart: unless-stopped
     ports:
       - 6379:6379
     volumes:
       - redis:/data
   postgres:
-    image: postgres:10
+    image: tonny2v/postgis
     restart: unless-stopped
     environment:
       POSTGRES_DB: superset

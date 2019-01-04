@@ -8,6 +8,8 @@ elif [ "$SUPERSET_ENV" = "development" ]; then
     # needed by superset runserver
     (cd superset/assets/ && npm ci && npm run sync-backend)
     (cd superset/assets/ && npm run dev) &
+    export FLASK_APP=superset
+    export FLASK_ENV=development
     flask run -p 8088 --with-threads --reload --debugger --host=0.0.0.0
 elif [ "$SUPERSET_ENV" = "production" ]; then
     superset worker &
