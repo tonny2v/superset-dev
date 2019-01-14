@@ -23,7 +23,6 @@ import sqlalchemy as sqla
 from sqlalchemy import and_, create_engine, MetaData, or_, update
 from sqlalchemy.engine.url import make_url
 from sqlalchemy.exc import IntegrityError
-from unidecode import unidecode
 from werkzeug.routing import BaseConverter
 from werkzeug.utils import secure_filename
 
@@ -61,7 +60,7 @@ QueryStatus = utils.QueryStatus
 
 ALL_DATASOURCE_ACCESS_ERR = __(
     'This endpoint requires the `all_datasource_access` permission')
-DATASOURCE_MISSING_ERR = __('The datasource seems to have been deleted')
+DATASOURCE_MISSING_ERR = __('The data source seems to have been deleted')
 ACCESS_REQUEST_MISSING_ERR = __(
     'The access requests seem to have been deleted')
 USER_MISSING_ERR = __('The user seems to have been deleted')
@@ -568,7 +567,7 @@ class DashboardModelView(SupersetModelView, DeleteMixin):  # noqa
             'the widgets size and positions by using drag & drop in '
             'the dashboard view'),
         'css': _(
-            'The css for individual dashboards can be altered here, or '
+            'The CSS for individual dashboards can be altered here, or '
             'in the dashboard view where changes are immediately '
             'visible'),
         'slug': _('To get a readable URL for your dashboard'),
@@ -2614,8 +2613,7 @@ class Superset(BaseSupersetView):
             # TODO(bkyryliuk): add compression=gzip for big files.
             csv = df.to_csv(index=False, **config.get('CSV_EXPORT'))
         response = Response(csv, mimetype='text/csv')
-        response.headers['Content-Disposition'] = (
-            'attachment; filename={}.csv'.format(unidecode(query.name)))
+        response.headers['Content-Disposition'] = f'attachment; filename={query.name}.csv'
         logging.info('Ready to return response')
         return response
 
