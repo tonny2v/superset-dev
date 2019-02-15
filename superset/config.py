@@ -59,7 +59,13 @@ SUPERSET_CELERY_WORKERS = 32  # deprecated
 
 SUPERSET_WEBSERVER_ADDRESS = '0.0.0.0'
 SUPERSET_WEBSERVER_PORT = 8088
-SUPERSET_WEBSERVER_TIMEOUT = 60  # deprecated
+
+# This is an important setting, and should be lower than your
+# [load balancer / proxy / envoy / kong / ...] timeout settings.
+# You should also make sure to configure your WSGI server
+# (gunicorn, nginx, apache, ...) timeout setting to be <= to this setting
+SUPERSET_WEBSERVER_TIMEOUT = 60
+
 SUPERSET_DASHBOARD_POSITION_DATA_LIMIT = 65535
 EMAIL_NOTIFICATIONS = False
 CUSTOM_SECURITY_MANAGER = None
@@ -111,6 +117,10 @@ APP_NAME = 'Superset'
 # Uncomment to setup an App icon
 APP_ICON = '/static/assets/images/superset-logo@2x.png'
 APP_ICON_WIDTH = 126
+
+# Uncomment to specify where clicking the logo would take the user
+# e.g. setting it to '/welcome' would take the user to '/superset/welcome'
+LOGO_TARGET_PATH = None
 
 # Druid query timezone
 # tz.tzutc() : Using utc timezone
@@ -493,7 +503,7 @@ DASHBOARD_TEMPLATE_ID = None
 # username. The function receives the connection uri object, connection
 # params, the username, and returns the mutated uri and params objects.
 # Example:
-#   def DB_CONNECTION_MUTATOR(uri, params, username, security_manager):
+#   def DB_CONNECTION_MUTATOR(uri, params, username, security_manager, source):
 #       user = security_manager.find_user(username=username)
 #       if user and user.email:
 #           uri.username = user.email
